@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 
@@ -16,7 +15,7 @@ func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 	if baseURL == nil {
 		return []string{}, nil
 	}
-	fmt.Println("Inputs: ", htmlBody, baseURL.String())
+	//fmt.Println("Inputs: ", htmlBody, baseURL.String())
 	outputStrings := []string{}
 	reader := strings.NewReader(htmlBody)
 	// look for  all <a> tags if present
@@ -26,8 +25,8 @@ func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 		// For each item found, get the title
 		link, exists := s.Attr("href")
 		if exists {
-			text := s.Text()
-			fmt.Printf("Link #%d: text: %q, href: %q\n", i+1, text, link)
+			//text := s.Text()
+			//fmt.Printf("Link #%d: text: %q, href: %q\n", i+1, text, link)
 			linkUrl, _ := url.Parse(link)
 
 			if linkUrl.Scheme == "" {
@@ -40,10 +39,11 @@ func getURLsFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 			outputStrings = append(outputStrings, linkUrl.String())
 		}
 	})
-	for _, output := range outputStrings {
-		fmt.Println("output string: ", output)
-	}
-
+	/*
+		for _, output := range outputStrings {
+			fmt.Println("output string: ", output)
+		}
+	*/
 	return outputStrings, nil
 }
 
@@ -54,7 +54,7 @@ func getImagesFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 	if baseURL == nil {
 		return []string{}, nil
 	}
-	fmt.Println("Inputs: ", htmlBody, baseURL.String())
+	//fmt.Println("Inputs: ", htmlBody, baseURL.String())
 	outputStrings := []string{}
 	reader := strings.NewReader(htmlBody)
 	// look for  all <a> tags if present
@@ -64,8 +64,8 @@ func getImagesFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 		// For each item found, get the title
 		link, exists := s.Attr("src")
 		if exists {
-			text, _ := s.Attr("alt")
-			fmt.Printf("Image #%d: text: %q, src: %q\n", i+1, text, link)
+			//text, _ := s.Attr("alt")
+			//fmt.Printf("Image #%d: text: %q, src: %q\n", i+1, text, link)
 			linkUrl, _ := url.Parse(link)
 
 			if linkUrl.Scheme == "" {
@@ -79,9 +79,11 @@ func getImagesFromHTML(htmlBody string, baseURL *url.URL) ([]string, error) {
 
 		}
 	})
-	for _, output := range outputStrings {
-		fmt.Println("output string: ", output)
-	}
+	/*
+		for _, output := range outputStrings {
+			fmt.Println("output string: ", output)
+		}
+	*/
 	return outputStrings, nil
 
 }
