@@ -43,20 +43,27 @@ func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
 		return
 	}
 	fmt.Println("Content from the current page:", body[:200])
-	pageData := extractPageData(body, rawCurrentURL)
-	for _, link := range pageData.OutgoingLinks {
-		fmt.Println("link ", link)
-	}
-
-	for _, eachLink := range pageData.OutgoingLinks {
-		crawlPage(rawBaseURL, eachLink, pages)
-	}
+	// original version where I called extractPageData for every link
 	/*
-		fmt.Println("pages map:")
-		for key, value := range pages {
-			fmt.Printf("%s:  %d\n", key, value)
+		pageData := extractPageData(body, rawCurrentURL)
+		for _, link := range pageData.OutgoingLinks {
+			fmt.Println("link ", link)
+		}
+
+		for _, eachLink := range pageData.OutgoingLinks {
+			crawlPage(rawBaseURL, eachLink, pages)
 		}
 	*/
+	// new version where I only get the links
+	nextURLs, err := getURLsFromHTML(body, baseURL)
+	if err != nil {
+		fmt.Printf("Error - getURLsFromHTML: %v", err)
+		return
+	}
+
+	for _, nextURL := range nextURLs {
+		crawlPage(rawBaseURL, nextURL, pages)
+	}
 }
 
 /*
