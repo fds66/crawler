@@ -30,7 +30,7 @@ func extractPageData(html, pageURL string) PageData {
 		fmt.Println("Error in getting outgoing links", err.Error())
 		return PageData{}
 	}
-	// REMOVE?
+	//REMOVE?
 	// normalise the links
 	/*
 		for _, link := range links {
@@ -62,7 +62,6 @@ func extractPageData(html, pageURL string) PageData {
 			imageLinks = append(imageLinks, newlink)
 		}
 	*/
-
 	output := PageData{
 		URL:            pageURL,
 		Heading:        getHeadingFromHTML(html),
