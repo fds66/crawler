@@ -8,6 +8,15 @@ import (
 func (cfg *config) crawlPage(rawCurrentURL string) {
 	// print out the base and current urls so we can monitor how many times this is called, we can interupt if there are too many loops
 	fmt.Println("Crawling CurrentURL", rawCurrentURL)
+	// if number of pages in the map is greater than maxPages then return immediately
+	cfg.mu.Lock()
+	if len(cfg.pages) >= cfg.maxPages {
+		fmt.Println("Enough pages")
+		cfg.mu.Unlock()
+		return
+	}
+	cfg.mu.Unlock()
+
 	// parse the urls so we can compare hosts, we only want to crawl this domain
 	baseURL := cfg.baseURL
 	currentURL, err := url.Parse(rawCurrentURL)
@@ -39,8 +48,10 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		fmt.Println("Error getting content from the currentURL", err.Error())
 		return
 	}
-	fmt.Println("Content from the current page:", body[:200])
-
+	// full output of html
+	fmt.Println("Content from the current page:", body)
+	// truncated output of html
+	//fmt.Println("Content from the current page:", body[:200])
 	pageData := extractPageData(body, rawCurrentURL)
 	// uses mutex.Lock and mutex.Unlock to make sure only one go routine writes at once
 

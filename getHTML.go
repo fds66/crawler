@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func getHTML(rawURL string) (string, error) {
@@ -17,7 +18,9 @@ func getHTML(rawURL string) (string, error) {
 	}
 
 	req.Header.Add("User-Agent", "BootCrawler/1.0")
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 2 * time.Second,
+	}
 	response, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Error from request", err.Error())

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -13,19 +14,29 @@ type config struct {
 	mu                 *sync.Mutex
 	concurrencyControl chan struct{}
 	wg                 *sync.WaitGroup
+	maxPages           int
 }
 
 func main() {
 	fmt.Println("Hello, World!")
-	if len(os.Args) < 2 {
-		fmt.Println("no website provided")
+	//# usage: ./crawler URL maxConcurrency maxPages
+	if len(os.Args) < 4 {
+		fmt.Println("not enough arguments")
+		fmt.Println("usage: ./crawler URL maxConcurrency maxPages")
 		os.Exit(1)
 	}
-	if len(os.Args) > 2 {
-		fmt.Println("too many arguments provided")
-		os.Exit(1)
-	}
+
 	rawBaseURL := os.Args[1]
+	maxConcurrency, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		fmt.Println("Error converting maxConcurrency to int", err.Error())
+		return
+	}
+	maxPages, err := strconv.Atoi(os.Args[3])
+	if err != nil {
+		fmt.Println("Error converting maxPages to int", err.Error())
+		return
+	}
 	fmt.Println("starting crawl of: ", rawBaseURL)
 	/*HTMLString, err := getHTML(baseURL)
 	if err != nil {
@@ -43,7 +54,7 @@ func main() {
 	pages := make(map[string]PageData)
 	wg := &sync.WaitGroup{}
 	mu := &sync.Mutex{}
-	concurr := make(chan struct{}, 3)
+	concurr := make(chan struct{}, maxConcurrency)
 	defer close(concurr)
 	cfg := config{
 		pages:              pages,
@@ -51,6 +62,7 @@ func main() {
 		mu:                 mu,
 		concurrencyControl: concurr,
 		wg:                 wg,
+		maxPages:           maxPages,
 	}
 	cfg.crawlPage(rawBaseURL)
 	cfg.wg.Wait()
