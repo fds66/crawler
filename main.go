@@ -41,9 +41,10 @@ func main() {
 		return
 	}
 	pages := make(map[string]PageData)
-	var wg *sync.WaitGroup
-	var mu *sync.Mutex
-	concurr := make(chan struct{})
+	wg := &sync.WaitGroup{}
+	mu := &sync.Mutex{}
+	concurr := make(chan struct{}, 3)
+	defer close(concurr)
 	cfg := config{
 		pages:              pages,
 		baseURL:            baseURL,
@@ -52,6 +53,8 @@ func main() {
 		wg:                 wg,
 	}
 	cfg.crawlPage(rawBaseURL)
+	cfg.wg.Wait()
+
 	fmt.Println("Finished crawl")
 	fmt.Println("Final pages map:")
 	for key, value := range pages {

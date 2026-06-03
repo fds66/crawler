@@ -25,10 +25,12 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		fmt.Println("Error normalising the currentURL", err.Error())
 		return
 	}
-
+	// lock the numtex for check if first visit and write the initial entry
+	cfg.mu.Lock()
 	isFirst := cfg.addPageVisit(normCurrent)
 	fmt.Printf("crawl url %s, isFirst %t\n", normCurrent, isFirst)
 	if isFirst == false {
+		cfg.mu.Unlock()
 		return
 	}
 
@@ -38,23 +40,26 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		return
 	}
 	fmt.Println("Content from the current page:", body[:200])
-	// original version where I called extractPageData for every link
-	/*
-		pageData := extractPageData(body, rawCurrentURL)
-		for _, link := range pageData.OutgoingLinks {
-			fmt.Println("link ", link)
-		}
 
-		for _, eachLink := range pageData.OutgoingLinks {
-			crawlPage(rawBaseURL, eachLink, pages)
-		}
-	*/
-	// new version where I only get the links
 	pageData := extractPageData(body, rawCurrentURL)
+	// uses mutex.Lock and mutex.Unlock to make sure only one go routine writes at once
+
 	cfg.pages[normCurrent] = pageData
+	cfg.mu.Unlock()
+	// add in concurrency here
+	// uses mutex.Lock and mutex.Unlock to make sure only one go routine writes at once
+	// use maxConcurrency to limit how many go routines can run at the same time
 
 	for _, nextURL := range pageData.OutgoingLinks {
-		cfg.crawlPage(nextURL)
+		cfg.wg.Add(1)
+
+		go func() {
+			defer cfg.wg.Done()
+			cfg.concurrencyControl <- struct{}{}
+			defer func() { <-cfg.concurrencyControl }()
+			cfg.crawlPage(nextURL)
+		}()
+
 	}
 }
 
@@ -68,6 +73,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 	}
 */
 func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
+
 	for key, value := range cfg.pages {
 		if key == normalizedURL {
 			fmt.Println("duplicate page ", value.URL)
@@ -76,3 +82,8 @@ func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
 	}
 	return true
 }
+
+//func (cfg *config) receive() {
+//	fmt.Println(<-cfg.concurrencyControl)
+
+//}
