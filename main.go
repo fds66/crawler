@@ -68,6 +68,7 @@ func main() {
 	cfg.wg.Wait()
 
 	fmt.Println("Finished crawl")
+	writeJSONReport(cfg.pages, "report.json")
 	fmt.Println("Final pages map:")
 	for key, value := range pages {
 		fmt.Printf("%s:  %s\n", key, value.Heading)

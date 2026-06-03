@@ -1,6 +1,6 @@
 PATH1=https://learnwebscraping.dev/practice/ecommerce/products/ashenfang-longsword-fan-1001/ 
 PATH2=https://learnwebscraping.dev/practice/ecommerce/
-MAXPAGES=25
+MAXPAGES=5
 MAXCONCURRENCY=3
 .DEFAULT_GOAL := list
 
